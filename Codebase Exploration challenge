@@ -1,0 +1,248 @@
+
+
+**Name:** Kamva Emmanuel Ngwenga
+**Date:** 9 July 2026
+
+## Part 1: Understanding a Specific Feature - Task Creation & Status Updates
+
+**Prompt Used:**
+
+```
+I'm a junior developer who just joined this project. I've read the README but still need help understanding the project structure and technology stack.
+
+Here's my current understanding of the project:
+- It seems to be a Python command-line Task Manager application that allows users to create, manage, prioritize, and complete tasks.
+- It appears to use Python 3, object-oriented programming (OOP), file-based storage, and the Python standard library.
+- The folder structure seems to follow modular architecture where each Python file has a separate responsibility.
+
+Project structure:
+TaskManager/
+│── app.py
+│── cli.py
+│── models.py
+│── storage.py
+│── README.md
+
+Key configuration files:
+- Python project
+- No external frameworks identified
+- Uses the Python standard library
+- Main entry point appears to be app.py
+
+Could you:
+1. Validate my understanding and correct any misconceptions
+2. Identify additional key technologies, frameworks, and libraries used
+3. Explain what each main folder likely contains and its purpose
+4. Point out where the application entry points are located
+5. Suggest 3-5 specific questions I should ask my team to deepen my understanding
+
+I'm particularly confused about how the CLI communicates with the models and how the storage module saves and retrieves task data.
+
+After your explanation, could you suggest a small exploration exercise I could do to verify my understanding of the project structure?
+
+**AI Response Summary:**
+The AI confirmed most of my understanding and provided:
+- Validation of project structure and tech stack
+- Breakdown of each file's purpose
+- Likely libraries: argparse, json, dataclasses
+- Entry points: app.py and cli.py
+- 5 questions to ask the team
+- Hands-on exploration exercise
+
+## 3. Key Findings from AI
+| File | Likely Purpose |
+| --- | --- |
+| `app.py` | Core application logic; orchestrates models and storage |
+| `cli.py` | Command-line interface layer; handles `add`, `list`, `complete` |
+| `models.py` | Data models/classes like `Task` |
+| `storage.py` | Persistence layer; reads/writes to `tasks.json` |
+| `README.md` | Documentation and usage instructions |
+
+**Call Chain for Task Creation:**
+
+# Exercise 2 Part 2: Deepen understanding through Guided questions. 
+
+## 1. Codebase Under Review
+`TaskManager/` - Python CLI app with 5 files: app.py, cli.py, models.py, storage.py, README.md
+
+**Feature Focus:** Task Creation, Prioritization, and Completion
+
+## 2. AI Prompt used
+```
+
+I need to work on the task creation, prioritization, and task completion  in this codebase, but I'm not sure where the code for this feature lives.
+
+My approach so far:
+- I've searched for keywords like task, create, add, priority, complete, status, save, and load.
+- I looked in  app.py, cli.py, models.py, and storage.py, since they seem to contain the application's main functionality.
+- I think these features are split across the command-line interface, the task model, and the storage component.
+
+Project structure:
+TaskManager/
+│── app.py
+│── cli.py
+│── models.py
+│── storage.py
+│── README.md
+
+Based on my search, these files might be relevant, but I'm not sure:
+- app.py – Starts the application and controls the program flow.
+- cli.py – Handles user input and menu options.
+- models.py – Defines the Task model and task properties.
+- storage.py – Handles saving and loading task data
+
+Can you help me:
+1. Evaluate my search approach and suggest improvements
+2. Identify which files and directories most likely contain the implementation for this feature
+3. Suggest specific search terms or patterns that would be more effective
+4. Explain what parts of the feature might be located in different areas of the codebase
+5. Recommend a step-by-step investigation process to understand the complete feature flow
+
+Also, what questions could I ask myself as I'm exploring the code to ensure I'm on the right track? What specific patterns should I look for to confirm I've found all the relevant parts?
+
+After your guidance, could you give me a small challenge to test my understanding of how to navigate this feature's code?
+
+
+## 3. AI Code Review Findings
+
+### A. File Structure Assessment
+AI confirmed modular architecture is good. Each file has single responsibility:
+- `cli.py`: Input/Output layer
+- `app.py`: Business logic layer  
+- `models.py`: Data layer
+- `storage.py`: Persistence layer
+
+### B. Where Feature Logic Lives
+| Feature | File | Function/Class to Look For |
+| --- | --- | --- |
+| Task Creation | `cli.py` | `add_task()` command handler |
+|  | `app.py` | `create_task()` core logic |
+|  | `models.py` | `Task.__init__()` with priority field |
+|  | `storage.py` | `save_task()` |
+| Priority | `models.py` | `priority` field + validation |
+|  | `app.py` | Sorting/filtering methods |
+| Completion | `cli.py` | `complete` command |
+|  | `app.py` | `complete_task(task_id)` |
+|  | `storage.py` | `update_task()` |
+
+### C. Search Patterns & Regex Tips Provided by AI
+```regex
+# Functions
+/def\s+\w+/
+
+# Classes  
+/class\s+\w+/
+
+# Priority/Status
+/priority\s*=|Priority\./
+/status\s*=|\.complete\(\)|\.mark_done\(\)/
+
+# Exercise 2 Part 3: Domain Model Understanding with AI
+
+## 1. Codebase Context
+Project: TaskManager CLI
+Goal: Understand how Task Creation, Prioritization, and Completion work in the business domain
+
+## 2. Code Snippets Provided
+```python
+class TaskPriority:
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    URGENT = 4
+
+class TaskStatus(Enum):
+    TODO = "todo"
+    IN_PROGRESS = "in_progress"
+    REVIEW = "review"
+    DONE = "done"
+
+class Task:
+    def __init__(self, title, description="", priority=TaskPriority.MEDIUM,
+                 due_date=None, tags=None):
+        self.id = str(uuid.uuid4())
+        self.title = title
+        self.description = description
+        self.priority = priority
+        self.status = TaskStatus.TODO
+        self.created_at = datetime.now()
+        self.updated_at = self.created_at
+        self.due_date = due_date
+        self.completed_at = None
+        self.tags = tags or []
+
+    def update(self, **kwargs):...
+    def mark_as_done(self):...
+    def is_overdue(self):...
+
+##My Initial understanding 
+- The system models a personal/ team task tracker. 
+- Task is the main entity with priority and status as key attributes.
+- status represents a workflow: TODO -> IN_PROGRESS -> REVIEW -> DONE
+- Confused about why we need uuid and what storage.py's role is.
+
+#Senior Developer Review 
+
+## 1. Validation 
+Correct: This is a DDD-style domain model. Task is the Aggregate Root.
+⚠️ Correction: storage.py is a Repository. It should not contain business rules. All rules are in Task methods.
+
+## 2. Core Domain Concepts
+- Task *: Has identity id. Lifecycle managed by status
+- TaskPriority [Value Object]: Describes urgency. No identity
+- Audit Fields: created_at, updated_at, completed_at support business reporting.
+[Aggregate][State]
+
+## 3. Business Relationships 
+- "User creates Task" → Task.*init* defaults to TODO + MEDIUM.
+- "User prioritizes work" → priority determines order in lists.
+- "User completes work" → mark_as_done() is a domain event. Must record when.
+- "Manager checks risks" → is_overdue() implements business SLA rule.
+
+## 4. Key Terminology 
+- Repository Pattern: storage.py
+- Domain Method: mark_as_done() encapsulates rule
+- Enum: Priority and Status restrict to valid business values
+ 
+## 5. Connect to User Features
+
+| Domain Model Code | User Sees in CLI | Business Value |
+| --- | --- | --- |
+| `priority: TaskPriority` | `task add "Fix bug" --priority urgent` | Focus on critical/revenue tasks first. Prevents outages |
+| `status: TaskStatus` | `task start 123` / `task review 123` / `task done 123` | Team kanban workflow. Track what’s in progress |
+| `is_overdue()` method | `task list --overdue` | Manager sees at-risk tasks. Meet SLAs/deadlines |
+| `tags: List[str]` | `task add "Write report" --tag work` | Filter and group tasks by project, client, or area |
+| `created_at, completed_at` | `task report --this-week` | Measure team velocity and average time to complete |
+| `mark_as_done()` method | `task complete 123` | Business event: records completion time for reporting |
+
+# Questions to test understanding 
+1. Why do we set completed_at in mark_as_done() instead of letting CLI set it?
+2. What business rule would stop someone from setting status=REVIEW without IN_PROGRESS first?
+3. If 2 tasks have the same title, how does uuid help the business?
+4. Where should validation for priority values live?
+5. How would adding "Assignee" change the Task aggregate?
+
+# Domain Diagram 
+[User] -> [CLI: cli.py] -> [Domain Service: app.py] -> [Task Aggregate]
+                                                    -> [Priority Enum]
+                                                    -> [Status Enum]
+                                         -> [Repository: storage.py] -> tasks.json
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
