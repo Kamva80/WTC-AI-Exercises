@@ -1,0 +1,105 @@
+# Exercise: API Integration Challenge
+
+## 1. Target Code
+**File**: `stock_manager.py` + new `api_client.py`
+**Goal**: Connect our inventory system to a real API to get live product prices
+
+## 2. AI API Analysis
+**Prompt used**:
+Act as a senior Python developer. Add API integration to stock_manager.py.
+Use requests library to fetch live prices from a public product API.
+Add error handling for network failures and invalid JSON. Use environment variables for API keys
+
+
+**AI Response Summary**:
+AI suggested using FakeStoreAPI as it's free, no key needed.
+Key patterns: `try/except`, `response.raise_for_status()`, `os.getenv` for secrets.
+
+## 3. New Code + Source Code
+
+**File: `api_client.py`**
+```python
+"""
+api_client.py
+
+Handles all external API calls for the inventory system.
+"""
+
+import requests
+import os
+from typing import Dict, Optional
+
+API_BASE_URL = "https://fakestoreapi.com" # Free public API, no key needed
+
+def fetch_product_price(product_name: str) -> Optional[float]:
+    """Fetches live product price from external API.
+
+    Args:
+        product_name: Name of product to search for.
+
+    Returns:
+        float: Product price if found, None if API fails or product not found.
+
+    Raises:
+        requests.RequestException: If network request fails.
+    """
+    try:
+        # FakeStoreAPI doesn't have search, so we get all and filter
+        response = requests.get(f"{API_BASE_URL}/products")
+        response.raise_for_status() # Raises error for 4xx/5xx
+        products = response.json()
+
+        for product in products:
+            if product_name.lower() in product['title'].lower():
+                return float(product['price'])
+        return None
+
+    except requests.RequestException as e:
+        print(f"API Error: Could not fetch price. {e}")
+        return None
+    except (KeyError, ValueError) as e:
+        print(f"Data Error: Invalid API response. {e}")
+        return None
+
+updated stock_manager.py - new function 
+from api_client import fetch_product_price
+
+def update_prices_from_api(items: List[Item]) -> List[Item]:
+    """Updates item prices by fetching live data from API.
+
+    Args:
+        items: List of items with 'name' key.
+
+    Returns:
+        List[Item]: Items with updated 'price' from API. Falls back to old price if API fails.
+    """
+    for item in items:
+        live_price = fetch_product_price(item['name'])
+        if live_price is not None:
+            print(f"Updated {item['name']} price to ${live_price}")
+            item['price'] = live_price
+        else:
+            print(f"Could not update {item['name']}. Using old price.")
+    return items
+
+**how to install**
+pip install requests python-dotenv
+
+## 4. Benefits of API integration 
+1. Real-world skill: Every business needs to connect to Stripe, Shopify, OpenAI, etc.
+2. Dynamic data: Prices update automatically instead of hardcoded.
+3. Error handling: try/except + raise_for_status() makes it production ready.
+
+## 5. Learning Points. 
+1. requests library: Industry standard for HTTP calls.
+2. Error handling: Always wrap API calls in try/except. Networks fail.
+3. raise_for_status(): Catches 404, 500 errors automatically.
+4. Separation of concerns: API logic lives in api_client.py, not mixed in business logic.
+5. Public APIs: Use FakeStoreAPI, JSONPlaceholder for portfolio projects. No API key needed.
+
+## 6. Reflection Questions. 
+1. AI vs Manual: AI gave me the exact requests.get + error handling pattern in 20 seconds.
+2. Most valuable: Learning to separate API code into its own file.
+3. Next step: Add .env file + python-dotenv to hide API keys when we use paid APIs.
+4. AI helped: Yes. It knew FakeStoreAPI and the exact JSON structure.
+
