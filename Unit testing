@@ -1,0 +1,93 @@
+# Exercise: Unit Testing Challenge
+
+## 1. Target Code
+**File**: `stock_manager.py`
+**Functions to test**: `validate_order`, `calculate_total`, `update_inventory`
+**Goal**: Write pytest tests to prove the code works and prevent future bugs
+
+## 2. AI Testing Analysis
+**Prompt used**:
+Act as a senior Python developer. Write pytest unit tests for stock_manager.py.
+Include edge cases: empty list, invalid data, tax calculation. Use fixtures.
+Explain AAA pattern: Arrange, Act, Assert.
+
+
+**AI Response Summary**:
+AI generated 6 tests covering happy path, edge cases, and error cases.
+Key insight: Test return values, not print statements. Use fixtures for test data.
+
+## 3. Test Code + Source Code
+**File: `test_stock_manager.py`**
+```python
+import pytest
+from stock_manager import validate_order, calculate_total, update_inventory
+
+# Fixture = reusable test data
+@pytest.fixture
+def sample_items():
+    return [
+        {"name": "Laptop", "price": 1000.0, "quantity": 5},
+        {"name": "Mouse", "price": 25.0, "quantity": 10}
+    ]
+
+@pytest.fixture
+def sample_customer():
+    return {"name": "Alice"}
+
+class TestValidateOrder:
+    def test_valid_order(self, sample_items, sample_customer):
+        """Test that valid order returns True"""
+        # Arrange done by fixtures
+        # Act
+        is_valid, error = validate_order(sample_items, sample_customer)
+        # Assert
+        assert is_valid is True
+        assert error == ""
+
+    def test_empty_items(self, sample_customer):
+        """Test that empty order returns error"""
+        is_valid, error = validate_order([], sample_customer)
+        assert is_valid is False
+        assert "No items" in error
+
+    def test_out_of_stock(self, sample_customer):
+        """Test that 0 quantity returns error"""
+        items = [{"name": "Laptop", "price": 1000, "quantity": 0}]
+        is_valid, error = validate_order(items, sample_customer)
+        assert is_valid is False
+        assert "out of stock" in error
+
+class TestCalculateTotal:
+    def test_total_with_default_tax(self, sample_items):
+        """Test 15% tax calculation"""
+        total = calculate_total(sample_items) # 1000 + 25 = 1025 * 1.15
+        assert total == 1178.75
+
+    def test_total_with_custom_tax(self, sample_items):
+        """Test custom tax rate"""
+        total = calculate_total(sample_items, tax_rate=0.20)
+        assert total == 1230.0
+
+class TestUpdateInventory:
+    def test_inventory_decrements(self, sample_items):
+        """Test that quantity decreases by 1"""
+        original_qty = sample_items[0]['quantity']
+        update_inventory(sample_items)
+        assert sample_items[0]['quantity'] == original_qty - 1
+
+## 4. Benefits of Testing 
+1. Confidence: Change tax rate? Run tests. If they pass, you didn’t break anything.
+2. Documentation: Tests show how functions are SUPPOSED to be used.
+3. Bug prevention: Catches edge cases before client finds them.
+
+## 5. Learning Points. 
+1. AAA Pattern: Arrange data, Act = call function, Assert = check result.
+2. Fixtures: Reuse test data so you don't copy-paste dictionaries.
+3. Edge cases: Always test empty, zero, and invalid input.
+4. Pytest: Industry standard. No need for unittest boilerplate.
+
+## 6. Reflection Questions. 
+1. AI vs Manual: AI wrote all test cases in 1 min. I would have forgotten the "out of stock" case.
+2. Most valuable: Fixtures. Makes tests 3x shorter.
+3. When to skip tests: Never for client work. Only for 5-line throwaway scripts.
+4. AI helped: Yes. It knew to test tax_rate=0.20 and suggested the fixture pattern.
