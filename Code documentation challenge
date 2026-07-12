@@ -1,0 +1,147 @@
+# Exercise: Code Documentation Challenge
+
+## 1. Target Function
+**File**: `stock_manager.py`
+**Functions**: `validate_order`, `update_inventory`, `calculate_total`, `print_receipt`, `process_order`
+**Goal**: Add Google-style docstrings, type hints, and module documentation
+
+## 2. AI Documentation Analysis
+**Prompt used**:
+Act as a senior Python developer. Add Google-style docstrings, type hints,
+and error handling to this code. Follow PEP 257 and PEP 484 standards.
+Explain why each docstring section matters.
+
+
+**AI Response Summary**:
+AI added: Args, Returns, Raises, and Examples to each function.
+It also added `from typing import List, Dict, Tuple` and converted prints to return values for testability.
+
+## 3. Documented Code
+```python
+"""
+stock_manager.py
+
+A simple CLI inventory management system.
+
+This module handles order processing including validation, inventory updates,
+pricing calculations, and receipt generation for a small retail business.
+
+Author: [Your Name]
+Version: 1.0.0
+"""
+
+from typing import List, Dict, Tuple
+
+Item = Dict[str, str | int | float]
+Customer = Dict[str, str]
+
+def validate_order(items: List[Item], customer: Customer) -> Tuple[bool, str]:
+    """Validates an order before processing.
+
+    Checks for empty order, missing customer info, and out-of-stock items.
+
+    Args:
+        items: List of item dictionaries. Each dict must have 'name', 'price', 'quantity'.
+        customer: Dictionary with customer info. Must have 'name' key.
+
+    Returns:
+        Tuple containing:
+            bool: True if order is valid, False otherwise.
+            str: Empty string if valid, error message if invalid.
+
+    Examples:
+        >>> validate_order([], {"name": "John"})
+        (False, "Error: No items in order")
+    """
+    if not items:
+        return False, "Error: No items in order"
+    if not customer or 'name' not in customer:
+        return False, "Error: No customer info"
+    for item in items:
+        if item.get('quantity', 0) <= 0:
+            return False, f"Error: {item['name']} out of stock"
+    return True, ""
+
+def update_inventory(items: List[Item]) -> None:
+    """Decreases inventory quantity for each item in the order.
+
+    Args:
+        items: List of item dictionaries to decrement quantity by 1.
+
+    Raises:
+        KeyError: If 'quantity' key is missing from an item.
+    """
+    for item in items:
+        item['quantity'] -= 1
+
+def calculate_total(items: List[Item], tax_rate: float = 0.15) -> float:
+    """Calculates order total including tax.
+
+    Args:
+        items: List of item dictionaries with 'price' key.
+        tax_rate: Tax rate as decimal. Defaults to 0.15 for 15%.
+
+    Returns:
+        float: Total amount including tax, rounded to 2 decimals.
+    """
+    subtotal = sum(item['price'] for item in items)
+    total = subtotal * (1 + tax_rate)
+    return round(total, 2)
+
+def print_receipt(items: List[Item], customer: Customer, total: float) -> str:
+    """Generates a formatted receipt string.
+
+    Args:
+        items: List of purchased items.
+        customer: Customer information dictionary.
+        total: Final total amount.
+
+    Returns:
+        str: Formatted receipt ready for printing.
+    """
+    lines = ["===== RECEIPT ====="]
+    lines.append(f"Customer: {customer['name']}")
+    for item in items:
+        lines.append(f"{item['name']}: ${item['price']}")
+    lines.append(f"Total: ${total:.2f}")
+    lines.append("===================")
+    return "\n".join(lines)
+
+def process_order(items: List[Item], customer: Customer) -> Tuple[bool, str]:
+    """Orchestrates the complete order processing workflow.
+
+    Args:
+        items: List of items to order.
+        customer: Customer placing the order.
+
+    Returns:
+        Tuple[bool, str]: Success status and receipt or error message.
+    """
+    is_valid, error = validate_order(items, customer)
+    if not is_valid:
+        return False, error
+
+    update_inventory(items)
+    total = calculate_total(items)
+    receipt = print_receipt(items, customer, total)
+    return True, receipt
+
+## 4. Documentation standards Applied 
+1. Module Docstring: Explains what the file does at the top.
+2. Google-style Docstrings: Args, Returns, Raises, Examples.
+3. Type Hints: List[Item], Tuple[bool][str] for IDE autocomplete.
+4. Type Aliases: Item and Customer for readability.
+5. Return vs Print: Functions return data instead of printing for testability.
+
+## 5. Learning Points 
+1. Why docstrings: Future you + teammates need to know what to pass in without reading code.
+2. Why type hints: Catches bugs before running. Makes AI autocomplete way better.
+3. PEP 257: Standard for docstrings. 
+4. Testable code: Returning strings instead of printing lets us write unit tests.
+
+## 6. Reflection Questions 
+1. AI vs Manual: AI wrote 80% of docstrings in 30 seconds. Manual would take 20 min.
+2. Most valuable: Type hints. They prevent bugs and make code self-documenting.
+3. Overkill?: For a 10-line script yes. For a repo clients see, absolutely not.
+4. AI helped: Yes. It knew Google format and added Examples I wouldn't have thought of.
+
